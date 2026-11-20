@@ -1,0 +1,556 @@
+/* ============================================================
+
+    #namn pekar på elementet med id="namn" i HTML-filen.
+   ============================================================ */
+
+
+/* hela sidan*/
+body {
+    margin: 0;
+    /* Webbläsaren lägger annars en vit kant runt sidan. 0 tar bort den. */
+    font-family: system-ui, sans-serif;
+    /* Vilket typsnitt texten har */
+    background: #1b1f2a;
+    /* Bakgrundsfärg (mörkblå). Färger skrivs som hex-koder. */
+    color: #eee;
+    /* Textfärg (nästan vit) */
+}
+
+
+/*kontrollraden högst upp på sidan*/
+/* ÄNDRAT: y2k-design med glansig rosa bakgrund, glitter och en neonblå kant.
+   Höjden är fast (60px) eftersom spelplanen räknar med det: height: calc(100vh - 60px) */
+#kontroller {
+    height: 60px;
+    box-sizing: border-box;
+    padding: 0 20px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    overflow-x: auto;
+    /* om fönstret är smalt kan raden scrollas i sidled istället för att hoppa ner */
+    position: relative;
+    z-index: 2;
+    /* ligger ovanför spelplanen så att neonglöden syns */
+    font-family: "Trebuchet MS", Verdana, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 6px #ff3fb4;
+    /* de tre första är glittret (små vita prickar), den sista är den glansiga rosa bakgrunden */
+    background-image:
+        radial-gradient(circle at 12% 30%, #fff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 47% 70%, #fff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 83% 25%, #fff 0 1.5px, transparent 2px),
+        linear-gradient(180deg, #ff9be0 0%, #ff3fb4 45%, #8a1fb0 100%);
+    background-size: 220px 60px, 310px 60px, 170px 60px, 100% 100%;
+    border-bottom: 3px solid #19e6ff;
+    box-shadow: 0 0 18px #19e6ff;
+}
+
+/* text + reglage/rullista bredvid varandra */
+#kontroller label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* alla knappar och rullistor: krom-pillerknappar med glansig, tvådelad botten (typiskt y2k) */
+button,
+select {
+    padding: 6px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    color: #5b1fa8;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffffff 0%, #e6d4ff 45%, #b99aff 50%, #e9d9ff 100%);
+    box-shadow: 0 2px 6px rgba(80, 0, 120, 0.5), inset 0 1px 0 #fff;
+    cursor: pointer;
+}
+
+button:hover,
+select:hover {
+    box-shadow: 0 0 12px #19e6ff, inset 0 1px 0 #fff;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* startknappen är neonblå (cyan) så att den sticker ut mot den rosa raden */
+#startKnapp {
+    color: #3a0f7a;
+    background: linear-gradient(180deg, #d9fbff 0%, #19e6ff 50%, #0fb5d6 51%, #7ff2ff 100%);
+}
+
+/* reglaget för känslighet: regnbågsfärgad pillerbana med en glansig kula som handtag */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 140px;
+    height: 14px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    background: linear-gradient(90deg, #19e6ff, #8a3dff, #ff3fb4);
+    box-shadow: 0 0 8px rgba(25, 230, 255, 0.8);
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: radial-gradient(circle at 35% 30%, #fff 0 15%, #c9c9ff 35%, #7a2cf0 100%);
+    box-shadow: 0 0 8px #19e6ff;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: radial-gradient(circle at 35% 30%, #fff 0 15%, #c9c9ff 35%, #7a2cf0 100%);
+    box-shadow: 0 0 8px #19e6ff;
+}
+
+/* statusraden: ser ut som en liten digital display med cyan text */
+#status {
+    margin-left: auto;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #1d0a3a;
+    border: 2px solid #19e6ff;
+    color: #8ff3ff;
+    text-shadow: 0 0 6px #19e6ff;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    white-space: nowrap;
+    box-shadow: inset 0 0 8px rgba(25, 230, 255, 0.4), 0 0 8px rgba(25, 230, 255, 0.5);
+}
+
+/*själva spelplanen */
+#spelplan {
+    position: relative;
+    /*gör att bollen och mätaren kan placeras exakt inuti spelplanen */
+    width: 100%;
+    height: calc(100vh - 60px);
+    /* 100vh = fönstrets höjd*/
+    overflow: hidden;
+    /*allt som hamnar utanför spelplanen döljs */
+}
+
+
+/* karaktären */
+#karaktar {
+    position: absolute;
+    /*karaktärens placering exakt */
+    left: 120px;
+    /*avstånd från vänsterkanten */
+
+    /* "bottom" sätts av JavaScript, så skriv inte den här */
+
+    width: 250px;
+    /* sildens bredd. ändrar efter bild */
+    height: 250px;
+    /* sildens höjd. --"-- */
+
+    background-image: url("images/keke.png");
+    /* bild som visas */
+    background-size: contain;
+    /* anpassar bilden så att hela syns utan att tänja ut den */
+    background-repeat: no-repeat;
+    /*bilden upprepas ej */
+    background-position: center;
+    /* bilden i mitten av rutan*/
+}
+
+
+/*här börjar volymätaren*/
+/* själva mätaren: den grå stapeln som fyllningen ligger i */
+#matare {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 24px;
+    height: 200px;
+    background: #333;
+    border-radius: 12px;
+    overflow: hidden;
+    /*fyllningen som växer ska inte sticka utanför */
+}
+
+/* gröna delen som växer när ljudet blir högre */
+#matarfyllning {
+    position: absolute;
+    bottom: 0;
+    /*börjar nere i botten av mätaren och växer uppåt */
+    width: 100%;
+    /*lika bred som mätaren */
+    height: 0;
+    /*från början 0 (tom), JavaScript ändrar höjden hela tiden */
+    background: #4cd964;
+    /*grön färg */
+}
+
+/* ===== NYTT: banan ===== */
+/* en hög låda som rymmer hela banan. Höjden måste vara samma som banLangd i script.js.
+   Den ligger förankrad i botten av spelplanen och JavaScript skjuter ner den,
+   då ser det ut som att karaktären rör sig framåt (uppåt på skärmen).
+   ÄNDRAT: banan är nu inte lika bred som skärmen utan går 5 cm in från varje sida (left och right),
+   så att det blir plats för barer på sidorna. Vill ni ha mer eller mindre plats, ändra 5cm. */
+#bana {
+    position: absolute;
+    left: 5cm;
+    right: 5cm;
+    bottom: 0;
+    height: 6000px;
+    background: #070418;
+}
+
+/* NYTT: dansgolvet. Ligger i hela banan och består av ett rutnät med 8 kolumner.
+   Själva rutorna skapas av JavaScript. Raderna är 100px höga (60 rader = 6000px) */
+#golv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    /* 8 lika breda kolumner. Ändrar ni 8 måste kolumner i script.js ändras också */
+    grid-auto-rows: 100px;
+    /* varje rad är 100px hög */
+}
+
+/* en ruta på dansgolvet. Färgerna sätts av JavaScript */
+.ruta {
+    box-sizing: border-box;
+    border: 2px solid rgba(34, 211, 255, 0.55);
+    /* tunn neonblå kant mellan rutorna, som linjerna i ett ravegolv */
+    box-shadow: inset 0 0 14px rgba(120, 200, 255, 0.18);
+    /* svag glöd inuti rutan */
+    background: #0b0720;
+    /* mörk grundfärg för de rutor som inte blinkar */
+}
+
+/* NYTT: rutor som blinkar. JavaScript ger varje blinkande ruta två färger (--fran och --till)
+   och en egen tid (animationDuration) och startpunkt (animationDelay), så att de inte blinkar i takt */
+.blinkar {
+    animation-name: blinka;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    /* ease-in-out gör att färgen tonas mjukt in och ut istället för att hoppa */
+}
+
+/* själva blinkandet: börjar med mörk färg, tonas upp till neonfärgen i mitten, och tillbaka */
+@keyframes blinka {
+
+    0%,
+    100% {
+        background-color: var(--fran);
+    }
+
+    50% {
+        background-color: var(--till);
+    }
+}
+
+/* om någon har ställt in sin dator på "minska rörelse" blinkar rutorna inte */
+@media (prefers-reduced-motion: reduce) {
+    .blinkar {
+        animation: none;
+    }
+}
+
+/* målet längst fram (högst upp) i banan */
+#mal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: gold;
+}
+
+/* ===== NYTT: hinder ===== */
+/* hinder som karaktären inte får nudda. JavaScript sätter "bottom" och "left" för varje cirkel */
+.hinder {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    /* ÄNDRAT: den röda cirkeln och den vita kanten är borta, bilden visas istället */
+    background-size: contain;
+    /* anpassar bilden så att hela syns utan att tänja ut den */
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: translateX(-50%);
+    /* gör att "left" pekar på bildens mitt istället för dess vänstra kant */
+}
+
+
+/* ===== NYTT: barerna (rave + y2k, sedda uppifrån) ===== */
+/* en bar är 5 cm bred och lika hög som banan. Den ligger utanför dansgolvet (left/right -5cm),
+   så den glider framåt tillsammans med banan. Delarna ligger bredvid varandra (flex)
+   och får procent av bredden: hylla 24% + gång 24% + disk 30% + stolar 22% = 100% */
+.bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5cm;
+    display: flex;
+    overflow: hidden;
+}
+
+#barVanster {
+    left: -5cm;
+}
+
+/* högra baren är en spegelvänd version: samma delar men i omvänd ordning */
+#barHoger {
+    right: -5cm;
+    flex-direction: row-reverse;
+}
+
+/* bakhyllan längst ut vid skärmkanten: mörklila tegelvägg med flaskor sedda uppifrån (cirklar).
+   Mönstret upprepas var 200:e pixel */
+.hylla {
+    position: relative;
+    flex: 0 0 24%;
+    background-color: #2a0b3d;
+    background-image:
+        radial-gradient(circle at 25% 25px, #19e6ff 0 7px, transparent 8px),
+        radial-gradient(circle at 65% 75px, #ff3fb4 0 8px, transparent 9px),
+        radial-gradient(circle at 30% 125px, #c8a0ff 0 7px, transparent 8px),
+        radial-gradient(circle at 70% 175px, #ffe3f7 0 6px, transparent 7px),
+        repeating-linear-gradient(0deg, transparent 0 18px, rgba(255, 63, 180, 0.25) 18px 20px);
+    background-size: 100% 200px, 100% 200px, 100% 200px, 100% 200px, 100% 20px;
+}
+
+/* gången där bartendern går: rosa och lila rutigt golv som i bilden */
+.gang {
+    flex: 0 0 24%;
+    background: repeating-conic-gradient(#f3c9ff 0 25%, #5b1fa8 0 50%) 0 0 / 40px 40px;
+}
+
+/* själva bardisken: glansig rosa med neonglöd. Rosa glas och glitter ligger ovanpå */
+.disk {
+    flex: 0 0 30%;
+    background-image:
+        radial-gradient(circle at 50% 60px, #ffffff 0 4px, #ff9be0 5px 9px, transparent 10px),
+        radial-gradient(circle at 40% 220px, #ffffff 0 4px, #8fe9ff 5px 9px, transparent 10px),
+        radial-gradient(circle at 20% 140px, #ffffff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 80% 30px, #ffffff 0 1.5px, transparent 2px),
+        linear-gradient(90deg, #b3278f, #ff7ad9 35%, #ff3fb4 65%, #b3278f);
+    background-size: 100% 320px, 100% 320px, 100% 160px, 100% 110px, 100% 100%;
+    border-left: 3px solid #ffd1f2;
+    border-right: 3px solid #ffd1f2;
+    box-sizing: border-box;
+    animation: neonpuls 4s ease-in-out infinite;
+}
+
+/* neonglöden runt bardisken pulserar långsamt mellan rosa och cyan */
+@keyframes neonpuls {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px #ff3fb4;
+    }
+
+    50% {
+        box-shadow: 0 0 22px #19e6ff;
+    }
+}
+
+/* zonen närmast dansgolvet: mörk med barstolar sedda uppifrån (runda sitsar, en var 240:e pixel) */
+.pallar {
+    flex: 0 0 22%;
+    background-color: #1d0a3a;
+    background-image:
+        radial-gradient(circle at 50% 100px, #ffffff 0 4px, #c9c9ff 5px 8px, #7a2cf0 9px 15px, #19e6ff 16px 18px, transparent 19px);
+    background-size: 100% 240px;
+}
+
+/* neonskylt med texten BAR (JavaScript lägger in den). Texten står lodrätt eftersom
+   baren är sedd uppifrån och sträcker sig uppåt */
+.skylt {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    writing-mode: vertical-rl;
+    font: 900 26px/1 system-ui, sans-serif;
+    letter-spacing: 6px;
+    color: #ffe3f7;
+    text-shadow: 0 0 6px #ff3fb4, 0 0 14px #ff3fb4, 0 0 26px #ff3fb4;
+}
+
+/* ingen pulserande glöd för de som ställt in "minska rörelse" */
+@media (prefers-reduced-motion: reduce) {
+    .disk {
+        animation: none;
+    }
+}
+
+/* ===== NYTT: GAME OVER-popup ===== */
+
+/* den mörka bakgrunden som täcker hela skärmen. Dold från början (display: none).
+   JavaScript lägger till klassen "visas" när man krockar */
+#gameOver {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 100;
+    /* högt tal = ligger ovanpå allt annat */
+    align-items: center;
+    justify-content: center;
+}
+
+/* när JavaScript lägger till klassen "visas" syns popupen (flex centrerar innehållet) */
+#gameOver.visas {
+    display: flex;
+}
+
+/* själva rutan i mitten */
+#gameOverRuta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 40px 60px;
+    background: #0b0720;
+    border: 6px solid #b427f5;
+    box-shadow: 0 0 30px #8915be;
+}
+
+/* texten GAME OVER: pixlad font, röd, med lite glöd */
+#gameOverText {
+    margin: 0;
+    font-family: "Press Start 2P", monospace;
+    font-size: 48px;
+    color: #27cff5;
+    text-shadow: 4px 4px 0 #00aa8e, 0 0 20px #02b384;
+    text-align: center;
+}
+
+/* START OVER-knappen: lila och pixlad. Skriver över de runda y2k-knapparna från tidigare */
+#startOmKnapp {
+    font-family: "Press Start 2P", monospace;
+    font-size: 20px;
+    color: #fff;
+    padding: 18px 32px;
+    border: 4px solid #e0b3ff;
+    border-radius: 0;
+    /* 0 = hörnen blir kantiga, inte runda */
+    background: #8a3dff;
+    box-shadow: 4px 4px 0 #3a0f7a;
+    cursor: pointer;
+}
+
+#startOmKnapp:hover {
+    background: #a566ff;
+    box-shadow: 4px 4px 0 #3a0f7a, 0 0 16px #8a3dff;
+}
+
+#startOmKnapp:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+/* ===== NYTT: INFO-ruta ===== */
+
+/* mörk bakgrund som täcker hela skärmen. Syns från start.
+   JavaScript lägger till klassen "doljs" när man klickar på knappen */
+#info {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+#info.doljs {
+    display: none;
+}
+
+/* själva rutan i mitten, neonblå kant (som resten av designen) */
+#infoRuta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    max-width: 700px;
+    padding: 40px 50px;
+    background: #0b0720;
+    border: 6px solid #19e6ff;
+    box-shadow: 0 0 30px #19e6ff;
+}
+
+/* rubriken */
+#infoRubrik {
+    margin: 0;
+    font-family: "Press Start 2P", monospace;
+    font-size: 32px;
+    color: #ff3fb4;
+    text-shadow: 4px 4px 0 #550044, 0 0 20px #ff3fb4;
+    text-align: center;
+}
+
+/* instruktionsraderna. Press Start 2P är bred, så håll storleken liten.
+   line-height = avstånd mellan raderna */
+#infoRuta p {
+    margin: 0;
+    font-family: "Press Start 2P", monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #fff;
+    text-align: center;
+}
+
+/* OK-knappen: samma pixelstil som START OVER men cyan */
+#infoKnapp {
+    font-family: "Press Start 2P", monospace;
+    font-size: 20px;
+    color: #0b0720;
+    padding: 18px 32px;
+    border: 4px solid #d9fbff;
+    border-radius: 0;
+    background: #19e6ff;
+    box-shadow: 4px 4px 0 #0a6f80;
+    cursor: pointer;
+}
+
+#infoKnapp:hover {
+    background: #7ff2ff;
+    box-shadow: 4px 4px 0 #0a6f80, 0 0 16px #19e6ff;
+}
+
+#infoKnapp:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+/* meddelandet som visas under instruktionerna medan mikrofonen startas (eller om det blir fel).
+   #infoRuta #infoStatus behövs för att slå #infoRuta p, som annars bestämmer färgen */
+#infoRuta #infoStatus {
+    min-height: 1.8em;
+    color: #19e6ff;
+}
+
+/* knappen ser avstängd ut medan vi väntar på mikrofonen */
+#infoKnapp:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
